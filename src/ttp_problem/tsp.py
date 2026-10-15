@@ -17,9 +17,15 @@ class TravelingSalesmanProblem:
         self.starting_point = starting_point
         self.population_size = population_size
         self.num_of_generations = num_of_generations
+        self.k = k
+        self.rng = np.random.default_rng(42)
 
 
     def compute_distances(self):
+        """
+        Macierz odleglosci, liczymy euklidesem
+        :return:
+        """
         return squareform(pdist(self.cities, metric='euclidean'))
 
 
@@ -36,6 +42,12 @@ class TravelingSalesmanProblem:
 
     @staticmethod
     def _compute_distance_for_single_generation(generation : list[list[int]], distances : np.ndarray):
+        """
+        Obliczamy dlugosc trasy jednego osobnika
+        :param generation:
+        :param distances:
+        :return:
+        """
         distance = 0
         for i in range(len(generation) - 1):
             distance += distances[generation[i]][generation[i + 1]]
@@ -45,15 +57,47 @@ class TravelingSalesmanProblem:
 
 
     def compute_distances_for_generations(self):
+        """
+        Obliczamy dlugosc trasy kazdego osobnika
+        :return:
+        """
         distances_matrix = self.compute_distances()
         population = self.initialize_population()
         distance_for_all_population = [self._compute_distance_for_single_generation(p, distances_matrix) for p in population]
         return distance_for_all_population
 
     def compute_fitness(self):
+        """
+        Obliczamy fitness, czyli 1/dlugosc trasy dla kazdego osobnika
+        :return:
+        """
         distances_for_generations = self.compute_distances_for_generations()
         fitness = [1 / d for d in distances_for_generations]
         return fitness
+
+    def _generate_random_indexes(self):
+        """
+        Losujemy k indeksow, aby pobrac potem k losowych osobnikow do procesu selekcji
+        :return:
+        """
+        indexes = self.rng.choice(np.arange(0, self.population_size), size=self.k, replace=False)
+        return indexes
+
+    def select_by_tournament(self):
+        """
+        Domyślnie mamy ustawione 2 turnieje. W kazdym turnieju wybieramy k osobnikow i z niego wybieramy indeks, aby
+        wiedziec ktory potem zostal wybrany.
+        :return:
+        """
+        fitness = np.asarray(self.compute_fitness())
+        indexes_1 = self._generate_random_indexes()
+        indexes_2 = self._generate_random_indexes()
+
+        tournament_1 = fitness[indexes_1]
+        tournament_2 = fitness[indexes_2]
+        first_winner = np.argmax(tournament_1)
+        second_winner = np.argmax(tournament_2)
+        return first_winner, second_winner
 
 
 
@@ -65,21 +109,16 @@ if __name__ == '__main__':
         [6, 3],
         [2, 5],
         [7, 7],
-    ]) #shape = (5, 2) -> 4 indeksy
-    # print(range(len(cities)))
+    ])
     tsp = TravelingSalesmanProblem(
         cities=cities,
-        population_size=5,
+        population_size=15,
         num_of_generations=5,
         starting_point=(0, 0),
-        k=2,
+        k=5,
     )
-    # print(tsp.initialize_population())
-    print(tsp.compute_fitness())
-    # entry_population = tsp.initialize_population()
-    # print(entry_population)
-    # distances = tsp.compute_distances()
-    # print(distances)
+    print(tsp.select_by_tournament())
+
 
 
 
