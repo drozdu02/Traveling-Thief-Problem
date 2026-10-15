@@ -1,5 +1,4 @@
 import numpy as np
-import random
 
 from typing import Tuple
 from scipy.spatial.distance import pdist, squareform
@@ -12,43 +11,32 @@ class TravelingSalesmanProblem:
             population_size : int,
             num_of_generations : int,
             k : int,
+            mutation_rate : float,
     ):
         self.cities = cities
         self.starting_point = starting_point
         self.population_size = population_size
         self.num_of_generations = num_of_generations
         self.k = k
+        self.mutation_rate = mutation_rate
         self.rng = np.random.default_rng(42)
+        self.distances = self.compute_distances()
         self.population = self.initialize_population()
+        self.best_solution = []
 
 
     def compute_distances(self):
-        """
-        Macierz odleglosci, liczymy euklidesem
-        :return:
-        """
         return squareform(pdist(self.cities, metric='euclidean'))
 
 
     def initialize_population(self):
-        """
-        Inicjalizujemy najpierw liczbę osobników z losowymi trasami.
-        Nalezy wziac pod uwage, ze startujemy od okreslonego punktu.
-        Tutaj trzeba wybrac kombinację.
-        :return:
-        """
         indexes = list(range(len(self.cities)))
-        population = [random.sample(indexes, len(indexes)) for _ in range(self.population_size)]
+        population = [self.rng.permutation(len(indexes)).tolist() for _ in range(self.population_size)]
+
         return population
 
     @staticmethod
-    def _compute_distance_for_single_generation(generation : list[list[int]], distances : np.ndarray):
-        """
-        Obliczamy dlugosc trasy jednego osobnika
-        :param generation:
-        :param distances:
-        :return:
-        """
+    def _compute_distance_for_single_generation(generation, distances : np.ndarray):
         distance = 0
         for i in range(len(generation) - 1):
             distance += distances[generation[i]][generation[i + 1]]
@@ -58,47 +46,25 @@ class TravelingSalesmanProblem:
 
 
     def compute_distances_for_generations(self):
-        """
-        Obliczamy dlugosc trasy kazdego osobnika
-        :return:
-        """
-        distances_matrix = self.compute_distances()
+        distances_matrix = self.distances
         population = self.population
         distance_for_all_population = [self._compute_distance_for_single_generation(p, distances_matrix) for p in population]
         return distance_for_all_population
 
     def compute_fitness(self):
-        """
-        Obliczamy fitness, czyli 1/dlugosc trasy dla kazdego osobnika
-        :return:
-        """
         distances_for_generations = self.compute_distances_for_generations()
         fitness = [1 / d for d in distances_for_generations]
         return fitness
 
     def _generate_random_indexes(self):
-        """
-        Losujemy k indeksow, aby pobrac potem k losowych osobnikow do procesu selekcji
-        :return:
-        """
         indexes = self.rng.choice(np.arange(0, self.population_size), size=self.k, replace=False)
         return indexes
 
     def _create_tournament(self, fitness):
-        """
-        Tworzymy turniej. Zwracamy indeks osobnika, ktor ma najwiekszy fitness.
-        :param fitness:
-        :return:
-        """
         indexes = self._generate_random_indexes()
         return indexes[np.argmax(fitness[indexes])]
 
-    def select_by_tournament(self):
-        """
-        Przeprowadznie 2 turniejow. Warto pamietac, ze nie mozemy wybrac tego samego osobnika.
-        :return:
-        """
-        fitness = np.asarray(self.compute_fitness())
+    def select_by_tournament(self, fitness):
         first_winner = self._create_tournament(fitness)
         second_winner = self._create_tournament(fitness)
         while second_winner == first_winner:
@@ -106,42 +72,68 @@ class TravelingSalesmanProblem:
         return first_winner, second_winner
 
 
-    def get_winners(self):
-        """
-        Pobieramy zwyciezcow.
-        :return:
-        """
-        first_winner, second_winner = self.select_by_tournament()
+    def get_winners(self, fitness):
+        first_winner, second_winner = self.select_by_tournament(fitness=fitness)
         return self.population[first_winner], self.population[second_winner]
 
-    def ox_crossover(self):
-        """
-        Pobieramy wygranych turnieju.
-        Potem losujemy 2 indeksy z zakresu [0, len - 1]
-        :return:
-        """
-        first_winner, second_winner = self.get_winners()
-        a, b = np.sort(self.rng.choice(np.arange(len(first_winner) + 1), size=2, replace=False))
+    def ox_crossover(self, fitness):
+        first_winner, second_winner = self.get_winners(fitness=fitness)
+        a, b = np.sort(self.rng.choice(np.arange(len(first_winner)), size=2, replace=False))
+        seen = set()
+        child = [-1] * len(first_winner)
+        child[a:b] = first_winner[a:b]
+        seen.update(child[a:b])
+        position = b % len(first_winner)
+        for i in range(len(first_winner)):
+            city = second_winner[(b + i) % len(first_winner)]
+            if city not in seen:
+                child[position] = city
+                seen.add(city)
+                position = (position + 1) % len(first_winner)
+
+
+        return child
+
+    def mutate(self, child):
+        if self.rng.random() < self.mutation_rate:
+            a, b = self.rng.choice(len(child), size=2, replace=False)
+            child[a], child[b] = child[b], child[a]
+        return child
+
+    def next_generation(self):
+        fitness = np.asarray(self.compute_fitness())
+        best_individual = np.argmax(fitness)
+        self.best_solution.append(1 / fitness[best_individual])
+        new_population = [self.population[best_individual].copy()]
+
+        while len(new_population) < self.population_size:
+            child = self.mutate(self.ox_crossover(fitness=fitness))
+            new_population.append(child)
+
+        self.population = new_population
+
+    def run(self):
+        for _ in range(self.num_of_generations):
+            self.next_generation()
+
+        fitness = np.asarray(self.compute_fitness())
+        best = np.argmax(fitness)
+        return self.population[best], 1 / fitness[best]
 
 
 
 if __name__ == '__main__':
-    cities = np.random.randint(0, 9, size=(5, 2))
-    # cities = np.array([
-    #     [0, 0],
-    #     [4, 1],
-    #     [6, 3],
-    #     [2, 5],
-    #     [7, 7],
-    # ])
+    cities = np.random.randint(0, 9, size=(250, 2))
+
     tsp = TravelingSalesmanProblem(
         cities=cities,
         population_size=15,
         num_of_generations=5,
         starting_point=(0, 0),
         k=5,
+        mutation_rate=1
     )
-    print(tsp.ox_crossover())
+    print(tsp.run())
 
 
 
