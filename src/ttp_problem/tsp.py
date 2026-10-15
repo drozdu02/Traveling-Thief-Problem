@@ -11,6 +11,7 @@ class TravelingSalesmanProblem:
             starting_point : Tuple[int, int],
             population_size : int,
             num_of_generations : int,
+            k : int,
     ):
         self.cities = cities
         self.starting_point = starting_point
@@ -49,6 +50,13 @@ class TravelingSalesmanProblem:
         distance_for_all_population = [self._compute_distance_for_single_generation(p, distances_matrix) for p in population]
         return distance_for_all_population
 
+    def compute_fitness(self):
+        distances_for_generations = self.compute_distances_for_generations()
+        fitness = [1 / d for d in distances_for_generations]
+        return fitness
+
+
+
 
 if __name__ == '__main__':
     cities = np.array([
@@ -61,12 +69,13 @@ if __name__ == '__main__':
     # print(range(len(cities)))
     tsp = TravelingSalesmanProblem(
         cities=cities,
-        population_size=3,
+        population_size=5,
         num_of_generations=5,
         starting_point=(0, 0),
+        k=2,
     )
-    print(tsp.initialize_population())
-    print(tsp.compute_distances_for_generations())
+    # print(tsp.initialize_population())
+    print(tsp.compute_fitness())
     # entry_population = tsp.initialize_population()
     # print(entry_population)
     # distances = tsp.compute_distances()
