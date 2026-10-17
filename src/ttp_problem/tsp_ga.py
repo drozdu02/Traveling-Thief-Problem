@@ -123,7 +123,7 @@ class TravelingSalesmanProblem:
 
 
 if __name__ == '__main__':
-    cities = np.random.randint(0, 9, size=(250, 2))
+    cities = np.random.randint(0, 9, size=(1000, 2))
 
     tsp = TravelingSalesmanProblem(
         cities=cities,
