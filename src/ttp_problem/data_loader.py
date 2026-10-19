@@ -63,10 +63,27 @@ class DataLoader:
 
         return items
 
+    def get_knapsack_parameters(self):
+        data = self.data
+        knapsack_parameters = {}
+        for line in data:
+            if line.startswith("NODE_COORD_SECTION"):
+                break
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            key = key.strip()
+            try:
+                value = float(value)
+            except ValueError:
+                continue
+            knapsack_parameters[key.strip()] = value
+
+        return knapsack_parameters
 
 
 
 
 if __name__ == "__main__":
     loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
-    print(loader.get_items())
+    print(loader.get_knapsack_parameters())
