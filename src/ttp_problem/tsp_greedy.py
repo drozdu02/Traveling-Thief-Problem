@@ -38,13 +38,14 @@ class TravelingSalesmanProblemGreedy:
 
 
 if __name__ == '__main__':
-    cities = np.random.randint(0, 9, size=(5, 2))
+    cities = np.random.randint(0, 9, size=(1000, 2))
     starting_point = np.random.randint(0, cities.shape[0] - 1)
     tsp_greedy = TravelingSalesmanProblemGreedy(
         cities=cities,
         starting_point=starting_point,
     )
-    print(tsp_greedy.travel())
+    distance, history = tsp_greedy.travel()
+    print(distance, history)
 
 
 
