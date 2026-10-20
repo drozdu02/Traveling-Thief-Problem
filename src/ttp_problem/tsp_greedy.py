@@ -2,6 +2,8 @@ import numpy as np
 
 from scipy.spatial.distance import squareform, pdist
 
+from data_loader import DataLoader
+
 class TravelingSalesmanProblemGreedy:
     def __init__(self, cities : np.ndarray, starting_point : int):
         self.cities = cities
@@ -38,8 +40,9 @@ class TravelingSalesmanProblemGreedy:
 
 
 if __name__ == '__main__':
-    cities = np.random.randint(0, 9, size=(1000, 2))
-    starting_point = np.random.randint(0, cities.shape[0] - 1)
+    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    cities = data_loader.get_cords()
+    starting_point = np.random.randint(0, len(cities) - 1)
     tsp_greedy = TravelingSalesmanProblemGreedy(
         cities=cities,
         starting_point=starting_point,
