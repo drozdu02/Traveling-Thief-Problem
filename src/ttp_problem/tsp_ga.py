@@ -16,7 +16,7 @@ class TravelingSalesmanProblem:
             k : int,
             mutation_rate : float,
     ):
-        self.cities = cities
+        self.cities = np.asarray(cities)
         self.starting_point = starting_point
         self.population_size = population_size
         self.num_of_generations = num_of_generations
@@ -29,7 +29,7 @@ class TravelingSalesmanProblem:
 
 
     def compute_distances(self):
-        return squareform(pdist(self.cities, metric='euclidean'))
+        return squareform(pdist(self.cities[:, 1:], metric='euclidean'))
 
 
     def initialize_population(self):
