@@ -32,8 +32,8 @@ class DataLoader:
             except ValueError:
                 break
 
-            x,y = float(parts[1]), float(parts[2])
-            coordinates.append([x,y])
+            idx, x,y = float(parts[0]), float(parts[1]), float(parts[2])
+            coordinates.append([idx, x,y])
 
         return coordinates
 
@@ -86,4 +86,4 @@ class DataLoader:
 
 if __name__ == "__main__":
     loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
-    print(loader.get_items())
+    print(loader.get_cords())

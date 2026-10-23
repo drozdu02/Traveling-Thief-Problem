@@ -1,7 +1,9 @@
+from typing import List
+
 from data_loader import DataLoader
 
 class KnapsackProblemGreedy:
-    def __init__(self, capacity : float, items):
+    def __init__(self, capacity : float, items : List):
         self.items = items
         self.capacity = capacity
 
