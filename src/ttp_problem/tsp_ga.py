@@ -14,12 +14,14 @@ class TravelingSalesmanProblem:
             num_of_generations : int,
             k : int,
             mutation_rate : float,
+            crossover_rate : float,
     ):
         self.cities = np.asarray(cities)
         self.population_size = population_size
         self.num_of_generations = num_of_generations
         self.k = k
         self.mutation_rate = mutation_rate
+        self.crossover_rate = crossover_rate
         self.rng = np.random.default_rng(42)
         self.distances = self.compute_distances()
         self.population = self.initialize_population()
@@ -79,6 +81,8 @@ class TravelingSalesmanProblem:
 
     def ox_crossover(self, fitness):
         first_winner, second_winner = self.get_winners(fitness=fitness)
+        if self.rng.random() >= self.crossover_rate:
+            return first_winner.copy()
         a, b = np.sort(self.rng.choice(np.arange(len(first_winner)), size=2, replace=False))
         seen = set()
         child = [-1] * len(first_winner)
@@ -131,7 +135,8 @@ if __name__ == '__main__':
         population_size=100,
         num_of_generations=20,
         k=5,
-        mutation_rate=0.3
+        mutation_rate=0.3,
+        crossover_rate=0.9,
     )
     print(tsp.run())
 
