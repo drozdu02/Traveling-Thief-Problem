@@ -10,14 +10,12 @@ class TravelingSalesmanProblem:
     def __init__(
             self,
             cities : np.ndarray,
-            starting_point : Tuple[int, int],
             population_size : int,
             num_of_generations : int,
             k : int,
             mutation_rate : float,
     ):
         self.cities = np.asarray(cities)
-        self.starting_point = starting_point
         self.population_size = population_size
         self.num_of_generations = num_of_generations
         self.k = k
@@ -121,8 +119,8 @@ class TravelingSalesmanProblem:
 
         fitness = np.asarray(self.compute_fitness())
         best = np.argmax(fitness)
-        return self.population[best], 1 / fitness[best]
 
+        return self.population[best], 1 / fitness[best]
 
 
 if __name__ == '__main__':
@@ -130,11 +128,10 @@ if __name__ == '__main__':
     cities = data_loader.get_cords()
     tsp = TravelingSalesmanProblem(
         cities=cities,
-        population_size=15,
-        num_of_generations=5,
-        starting_point=(0, 0),
+        population_size=100,
+        num_of_generations=20,
         k=5,
-        mutation_rate=1
+        mutation_rate=0.3
     )
     print(tsp.run())
 
