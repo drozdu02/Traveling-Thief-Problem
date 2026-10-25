@@ -1,6 +1,6 @@
 from typing import List
 
-from data_loader import DataLoader
+from ttp_problem.common.data_loader import DataLoader
 
 class KnapsackProblemGreedy:
     def __init__(self, capacity : float, items : List):
@@ -36,7 +36,7 @@ class KnapsackProblemGreedy:
 
 
 if __name__ == '__main__':
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("../data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
     items = data_loader.get_items()
     parameters = data_loader.get_knapsack_parameters()
     print(parameters)

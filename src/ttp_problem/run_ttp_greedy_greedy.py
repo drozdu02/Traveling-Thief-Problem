@@ -1,8 +1,8 @@
 import numpy as np
-from ttp_problem.data_logger import DataLogger
-from ttp_problem.data_loader import DataLoader
-from ttp_problem.knp_greedy import KnapsackProblemGreedy
-from ttp_problem.tsp_greedy import TravelingSalesmanProblemGreedy
+from ttp_problem.common.data_logger import DataLogger
+from ttp_problem.common.data_loader import DataLoader
+from ttp_problem.knp.knp_greedy import KnapsackProblemGreedy
+from ttp_problem.tsp.tsp_greedy import TravelingSalesmanProblemGreedy
 
 def ttp_greedy_greedy_solution(
     ga_route : np.ndarray,
@@ -56,8 +56,7 @@ def run(
 ):
     starting_point = np.random.randint(0, len(cities))
 
-    rng = np.random.default_rng(0)
-    starts = rng.choice(cities, size=10, replace=False)
+    starts = range(len(cities))
     dists, Gs = [], []
     history = {
         "best_solution": [],
@@ -68,7 +67,7 @@ def run(
     for start in starts:
         tsp_greedy = TravelingSalesmanProblemGreedy(
             cities=cities,
-            starting_point=starting_point,
+            starting_point=start,
         )
         distance, route = tsp_greedy.travel()
 

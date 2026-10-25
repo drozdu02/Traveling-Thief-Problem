@@ -15,7 +15,7 @@ class DataLogger:
                 ["generation", "best", "avg", "worst"],
             )
             for g, (best, avg, worst) in enumerate(zip(
-                data["best_solution"],
+                data["best"],
                 data["avg"],
                 data["worst"],
             )):

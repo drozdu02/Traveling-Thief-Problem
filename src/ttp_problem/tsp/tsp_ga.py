@@ -1,9 +1,8 @@
 import numpy as np
 
-from typing import Tuple
 from scipy.spatial.distance import pdist, squareform
 
-from data_loader import DataLoader
+from ttp_problem.common.data_loader import DataLoader
 
 
 class TravelingSalesmanProblem:
@@ -141,7 +140,7 @@ class TravelingSalesmanProblem:
 
 
 if __name__ == '__main__':
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("../data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
     cities = data_loader.get_cords()
     tsp = TravelingSalesmanProblem(
         cities=cities,

@@ -1,8 +1,8 @@
 import numpy as np
-from ttp_problem.data_logger import DataLogger
-from ttp_problem.data_loader import DataLoader
-from ttp_problem.knp_greedy import KnapsackProblemGreedy
-from ttp_problem.tsp_ga import TravelingSalesmanProblem
+from ttp_problem.common.data_logger import DataLogger
+from ttp_problem.common.data_loader import DataLoader
+from ttp_problem.knp.knp_greedy import KnapsackProblemGreedy
+from ttp_problem.tsp.tsp_ga import TravelingSalesmanProblem
 
 def ttp_ga_greedy_solution(
     ga_route : np.ndarray,
