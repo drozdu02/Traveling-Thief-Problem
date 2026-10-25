@@ -25,7 +25,11 @@ class TravelingSalesmanProblem:
         self.rng = np.random.default_rng(42)
         self.distances = self.compute_distances()
         self.population = self.initialize_population()
-        self.best_solution = []
+        self.history = {
+            "best_solution": [],
+            "avg" : [],
+            "worst" : []
+        }
 
 
     def compute_distances(self):
@@ -58,6 +62,12 @@ class TravelingSalesmanProblem:
         distances_for_generations = self.compute_distances_for_generations()
         fitness = [1 / d for d in distances_for_generations]
         return fitness
+
+    def __log_data(self, fitness):
+        distances = 1 / fitness
+        self.history["best_solution"].append(distances.min())
+        self.history["avg"].append(distances.mean())
+        self.history["worst"].append(distances.max())
 
     def _generate_random_indexes(self):
         indexes = self.rng.choice(np.arange(0, self.population_size), size=self.k, replace=False)
@@ -108,7 +118,9 @@ class TravelingSalesmanProblem:
     def next_generation(self):
         fitness = np.asarray(self.compute_fitness())
         best_individual = np.argmax(fitness)
-        self.best_solution.append(1 / fitness[best_individual])
+
+        self.__log_data(fitness)
+
         new_population = [self.population[best_individual].copy()]
 
         while len(new_population) < self.population_size:
@@ -122,6 +134,7 @@ class TravelingSalesmanProblem:
             self.next_generation()
 
         fitness = np.asarray(self.compute_fitness())
+        self.__log_data(fitness)
         best = np.argmax(fitness)
 
         return self.population[best], 1 / fitness[best]

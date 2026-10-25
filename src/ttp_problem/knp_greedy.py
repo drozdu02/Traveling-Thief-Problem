@@ -39,12 +39,13 @@ if __name__ == '__main__':
     data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
     items = data_loader.get_items()
     parameters = data_loader.get_knapsack_parameters()
-    capacity = parameters['CAPACITY OF KNAPSACK']
-    knp_greedy = KnapsackProblemGreedy(
-        capacity=capacity,
-        items=items
-    )
-    print(knp_greedy.greedy())
+    print(parameters)
+    # capacity = parameters['CAPACITY OF KNAPSACK']
+    # knp_greedy = KnapsackProblemGreedy(
+    #     capacity=capacity,
+    #     items=items
+    # )
+    # print(knp_greedy.greedy())
 
 
 

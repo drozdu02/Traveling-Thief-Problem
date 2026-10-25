@@ -86,4 +86,4 @@ class DataLoader:
 
 if __name__ == "__main__":
     loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
-    print(loader.get_cords())
+    print(loader.get_knapsack_parameters())

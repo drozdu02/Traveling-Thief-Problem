@@ -6,12 +6,12 @@ from data_loader import DataLoader
 
 class TravelingSalesmanProblemGreedy:
     def __init__(self, cities : np.ndarray, starting_point : int):
-        self.cities = cities
+        self.cities = np.asarray(cities)
         self.starting_point = starting_point
         self.distances = self.compute_distances()
 
     def compute_distances(self):
-        distances = squareform(pdist(self.cities, metric='euclidean'))
+        distances = squareform(pdist(self.cities[..., 1:], metric='euclidean'))
         distances[distances == 0] = np.inf
         return distances
 
