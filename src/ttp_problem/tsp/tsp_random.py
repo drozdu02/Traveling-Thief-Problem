@@ -10,6 +10,7 @@ class TravelingSalesmanProblemRandom:
         self.rng = np.random.default_rng(seed=seed)
         self.distances = self.compute_distances()
         self.new_route()
+
     def new_route(self):
         self.route = self.random_route()
         self.first_city = self.get_first_city()
@@ -17,7 +18,7 @@ class TravelingSalesmanProblemRandom:
 
     def compute_distances(self):
         distances = squareform(pdist(self.cities[..., 1:], metric='euclidean'))
-        return distances
+        return np.ceil(distances)
 
     def random_route(self):
         route = self.rng.permutation(len(self.cities))

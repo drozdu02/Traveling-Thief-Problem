@@ -12,6 +12,7 @@ class TravelingSalesmanProblemGreedy:
 
     def compute_distances(self):
         distances = squareform(pdist(self.cities[..., 1:], metric='euclidean'))
+        distances = np.ceil(distances)
         distances[distances == 0] = np.inf
         return distances
 
@@ -34,7 +35,6 @@ class TravelingSalesmanProblemGreedy:
             curr = nearest_node
 
         distance += self.distances[curr][self.starting_point]
-        history.append(self.starting_point)
 
         return distance, history
 

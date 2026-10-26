@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 class DataLoader:
     def __init__(self, data_path : str):
         self.data_path = data_path
@@ -67,7 +69,7 @@ class DataLoader:
         data = self.data
         knapsack_parameters = {}
         for line in data:
-            if line.startswith("NODE_COORD_SECTION"):
+            if line.startswith(("NODE_COORD_SECTION", "ITEMS SECTION")):
                 break
             if ":" not in line:
                 continue

@@ -11,7 +11,6 @@ def ttp_ga_greedy_solution(
     capacity: float,
     v_min: float,
     v_max: float,
-    renting_ratio : float,
 
 ):
     starting_city_index = list(ga_route).index(0)
@@ -29,7 +28,7 @@ def ttp_ga_greedy_solution(
 
     for profit, weight, city in items:
         extra_time = distance_to_end[int(city) - 1] * (1 / (v_max - weight * nu) - 1 / v_max)
-        value = profit - renting_ratio * extra_time
+        value = profit - extra_time
 
         if value > 0:
             adjusted.append((value, weight, city, profit))
@@ -48,12 +47,14 @@ def ttp_ga_greedy_solution(
     time = (distance / speed).sum()
     total_profit = sum(item[3] for item in chosen_items)
 
-    return route, chosen_items, total_profit - renting_ratio * time
+    return route, chosen_items, total_profit - time
+
+
 
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
 
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
@@ -67,19 +68,24 @@ if __name__ == "__main__":
         mutation_rate=0.1,
         crossover_rate=0.9,
     )
+
+    def fitness_fun(route):
+        _, _, G = ttp_ga_greedy_solution(
+            route,
+            tsp.distances,
+            items,
+            capacity=params['CAPACITY OF KNAPSACK'],
+            v_min=params['MIN SPEED'],
+            v_max=params['MAX SPEED'],
+        )
+        return G
+
+    tsp.fitness_fun = fitness_fun
+
     route, distance = tsp.run()
 
-    route, chosen, G = ttp_ga_greedy_solution(
-        route,
-        tsp.distances,
-        items,
-        capacity=params['CAPACITY OF KNAPSACK'],
-        v_min=params['MIN SPEED'],
-        v_max=params['MAX SPEED'],
-        renting_ratio=params['RENTING RATIO']
-    )
     data_logger = DataLogger(
-        "logs/tsp_ga_greedy_history.csv"
+        "logs/ttp_ga_greedy_hard/tsp_ga_greedy_history_hard_2.csv"
     )
     data_logger.log_data(tsp.history)
 

@@ -12,7 +12,6 @@ def ttp_random_random_solution(
     capacity : float,
     v_min: float,
     v_max: float,
-    renting_ratio : float
 ):
     num_of_cities = len(route)
     distance = distances[route, np.roll(route, -1)]
@@ -29,7 +28,7 @@ def ttp_random_random_solution(
 
     total_profit = sum(item[0] for item in chosen_items)
 
-    return total_profit - renting_ratio * time
+    return total_profit - time
 
 def run(
     cities,
@@ -65,25 +64,24 @@ def run(
             capacity=params["CAPACITY OF KNAPSACK"],
             v_min=params["MIN SPEED"],
             v_max=params["MAX SPEED"],
-            renting_ratio=params["RENTING RATIO"]
         )
         dists.append(distance)
         Gs.append(G)
 
-        history["best"].append(min(dists))
-        history["avg"].append(float(np.mean(dists)))
-        history["worst"].append(float(max(dists)))
+        history["best"].append(max(Gs))
+        history["avg"].append(float(np.mean(Gs)))
+        history["worst"].append(float(min(Gs)))
 
-    DataLogger("logs/tsp_random_random_history.csv").log_data(history)
+    DataLogger("logs/ttp_random_random_hard/tsp_random_random_history_hard_2.csv").log_data(history)
     return dists, Gs
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
-    n_trials = 10_000
+    n_trials = 100 * 500
     all_dists, all_Gs = [], []
     for seed in range(10):
         dists, Gs = run(

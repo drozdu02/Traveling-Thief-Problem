@@ -11,7 +11,6 @@ def ttp_greedy_greedy_solution(
     capacity: float,
     v_min: float,
     v_max: float,
-    renting_ratio : float
 ):
     starting_city_index = list(ga_route).index(0)
     route = np.array(list(ga_route[starting_city_index:]) + list(ga_route[:starting_city_index]))
@@ -27,7 +26,8 @@ def ttp_greedy_greedy_solution(
     adjusted = []
 
     for profit, weight, city in items:
-        value = profit
+        extra_time = distance_to_end[int(city) - 1] * (1 / (v_max - weight * nu) - 1 / v_max)
+        value = profit - extra_time
 
         if value > 0:
             adjusted.append((value, weight, city, profit))
@@ -46,7 +46,7 @@ def ttp_greedy_greedy_solution(
     time = (distance / speed).sum()
     total_profit = sum(item[3] for item in chosen_items)
 
-    return route, chosen_items, total_profit - renting_ratio * time
+    return route, chosen_items, total_profit - time
 
 def run(
         data_loader : DataLoader,
@@ -59,7 +59,7 @@ def run(
     starts = range(len(cities))
     dists, Gs = [], []
     history = {
-        "best_solution": [],
+        "best": [],
         "avg" : [],
         "worst": [],
     }
@@ -78,20 +78,19 @@ def run(
             capacity=params['CAPACITY OF KNAPSACK'],
             v_min=params['MIN SPEED'],
             v_max=params['MAX SPEED'],
-            renting_ratio=params['RENTING RATIO']
         )
         dists.append(distance)
         Gs.append(G)
-        history["best_solution"].append(min(dists))
-        history["avg"].append(float(np.mean(dists)))
-        history["worst"].append(float(max(dists)))
+        history["best"].append(max(Gs))
+        history["avg"].append(float(np.mean(Gs)))
+        history["worst"].append(float(min(Gs)))
 
     data_logger = DataLogger(
-        "logs/tsp_greedy_greedy_history.csv"
+        "logs/ttp_greedy_greedy_hard/tsp_greedy_greedy_history_hard_2.csv"
     ).log_data(history)
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()

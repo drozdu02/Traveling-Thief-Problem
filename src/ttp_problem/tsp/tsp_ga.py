@@ -14,6 +14,8 @@ class TravelingSalesmanProblem:
             k : int,
             mutation_rate : float,
             crossover_rate : float,
+            seed : int,
+            fitness_fun = None
     ):
         self.cities = np.asarray(cities)
         self.population_size = population_size
@@ -21,19 +23,20 @@ class TravelingSalesmanProblem:
         self.k = k
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
-        self.rng = np.random.default_rng(42)
+        self.fitness_fun = fitness_fun
+        self.rng = np.random.default_rng(seed)
         self.distances = self.compute_distances()
         self.population = self.initialize_population()
         self.history = {
-            "best_solution": [],
+            "best": [],
             "avg" : [],
             "worst" : []
         }
 
 
     def compute_distances(self):
-        return squareform(pdist(self.cities[:, 1:], metric='euclidean'))
-
+        distances = squareform(pdist(self.cities[:, 1:], metric='euclidean'))
+        return np.ceil(distances)
 
     def initialize_population(self):
         indexes = list(range(len(self.cities)))
@@ -58,15 +61,17 @@ class TravelingSalesmanProblem:
         return distance_for_all_population
 
     def compute_fitness(self):
-        distances_for_generations = self.compute_distances_for_generations()
-        fitness = [1 / d for d in distances_for_generations]
-        return fitness
+        if self.fitness_fun is None:
+            distances_for_generations = self.compute_distances_for_generations()
+            fitness = [1 / d for d in distances_for_generations]
+            return fitness
+        return [self.fitness_fun(n) for n in self.population]
 
     def __log_data(self, fitness):
-        distances = 1 / fitness
-        self.history["best_solution"].append(distances.min())
-        self.history["avg"].append(distances.mean())
-        self.history["worst"].append(distances.max())
+        fitness = np.asarray(fitness, dtype=float)
+        self.history["best"].append(float(fitness.max()))
+        self.history["avg"].append(float(fitness.mean()))
+        self.history["worst"].append(float(fitness.min()))
 
     def _generate_random_indexes(self):
         indexes = self.rng.choice(np.arange(0, self.population_size), size=self.k, replace=False)
@@ -134,9 +139,9 @@ class TravelingSalesmanProblem:
 
         fitness = np.asarray(self.compute_fitness())
         self.__log_data(fitness)
-        best = np.argmax(fitness)
+        best = int(np.argmax(fitness))
 
-        return self.population[best], 1 / fitness[best]
+        return self.population[best], float(fitness[best])
 
 
 if __name__ == '__main__':
@@ -149,6 +154,7 @@ if __name__ == '__main__':
         k=5,
         mutation_rate=0.3,
         crossover_rate=0.9,
+        seed=42,
     )
     print(tsp.run())
 
