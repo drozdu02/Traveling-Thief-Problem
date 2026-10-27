@@ -54,7 +54,6 @@ def run(
         params : dict,
         items: np.ndarray,
 ):
-    starting_point = np.random.randint(0, len(cities))
 
     starts = range(len(cities))
     dists, Gs = [], []
@@ -86,11 +85,19 @@ def run(
         history["worst"].append(float(min(Gs)))
 
     data_logger = DataLogger(
-        "logs/ttp_greedy_greedy_hard/tsp_greedy_greedy_history_hard_2.csv"
+        "logs/greedy_greedy/ttp_greedy_greedy_hard/2/tsp_greedy_greedy_history_hard.csv"
     ).log_data(history)
 
+    Gs = np.asarray(Gs, dtype=float)
+    print("--- summary (N starts) ---")
+    print("best", float(Gs.max()))
+    print("worst", float(Gs.min()))
+    print("avg", float(Gs.mean()))
+    print("std", float(Gs.std(ddof=1)))
+    return Gs
+
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()

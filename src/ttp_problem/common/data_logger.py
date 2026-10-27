@@ -1,5 +1,6 @@
 import csv
 import os
+
 class DataLogger:
     def __init__(
         self,

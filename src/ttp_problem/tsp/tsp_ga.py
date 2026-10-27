@@ -109,8 +109,6 @@ class TravelingSalesmanProblem:
                 child[position] = city
                 seen.add(city)
                 position = (position + 1) % len(first_winner)
-
-
         return child
 
     def mutate(self, child):

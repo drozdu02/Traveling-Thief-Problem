@@ -54,39 +54,53 @@ def ttp_ga_greedy_solution(
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
 
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
+    final_Gs = []
 
-    tsp = TravelingSalesmanProblem(
-        cities=cities,
-        population_size=100,
-        num_of_generations=500,
-        k=5,
-        mutation_rate=0.1,
-        crossover_rate=0.9,
-    )
+    for seed in range(10):
 
-    def fitness_fun(route):
-        _, _, G = ttp_ga_greedy_solution(
-            route,
-            tsp.distances,
-            items,
-            capacity=params['CAPACITY OF KNAPSACK'],
-            v_min=params['MIN SPEED'],
-            v_max=params['MAX SPEED'],
+        tsp = TravelingSalesmanProblem(
+            cities=cities,
+            population_size=100,
+            num_of_generations=100,
+            k=5,
+            mutation_rate=0.1,
+            crossover_rate=0.7,
+            seed=seed,
         )
-        return G
 
-    tsp.fitness_fun = fitness_fun
+        def fitness_fun(route):
+            _, _, G = ttp_ga_greedy_solution(
+                route,
+                tsp.distances,
+                items,
+                capacity=params['CAPACITY OF KNAPSACK'],
+                v_min=params['MIN SPEED'],
+                v_max=params['MAX SPEED'],
+            )
+            return G
 
-    route, distance = tsp.run()
+        tsp.fitness_fun = fitness_fun
 
-    data_logger = DataLogger(
-        "logs/ttp_ga_greedy_hard/tsp_ga_greedy_history_hard_2.csv"
-    )
-    data_logger.log_data(tsp.history)
+        route, G = tsp.run()
+        final_Gs.append(G)
+
+
+
+        data_logger = DataLogger(
+            f"logs/ga_greedy/ttp_ga_greedy_hard/2/ttp_ga_greedy_history_hard_{seed}.csv"
+        )
+        data_logger.log_data(tsp.history)
+
+    final_Gs = np.asarray(final_Gs, dtype=float)
+    print("Data after 10 runs:")
+    print("best", float(final_Gs.max()))
+    print("worst", float(final_Gs.min()))
+    print("avg", float(final_Gs.mean()))
+    print("std", float(final_Gs.std(ddof=1)))
 
 

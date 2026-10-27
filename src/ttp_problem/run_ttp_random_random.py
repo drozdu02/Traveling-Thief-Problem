@@ -17,7 +17,7 @@ def ttp_random_random_solution(
     distance = distances[route, np.roll(route, -1)]
     nu = (v_max - v_min) / capacity
 
-    city_weight = np.zeros(num_of_cities)
+    city_weight = np.empty(num_of_cities)
 
     for profit, weight, city in chosen_items:
         city_weight[int(city) - 1] += weight
@@ -36,6 +36,7 @@ def run(
     items,
     n_trials,
     seed,
+    log_path
 ):
     tsp_random = TravelingSalesmanProblemRandom(
         cities=cities,
@@ -55,7 +56,6 @@ def run(
     dists, Gs = [], []
     for _ in range(n_trials):
         tsp_random.new_route()
-        distance = tsp_random.swap_distance().sum()
         _, chosen_items, _ = knp_random.random_item_pickup()
         G = ttp_random_random_solution(
             route=tsp_random.swapped_route,
@@ -65,31 +65,38 @@ def run(
             v_min=params["MIN SPEED"],
             v_max=params["MAX SPEED"],
         )
-        dists.append(distance)
         Gs.append(G)
 
         history["best"].append(max(Gs))
         history["avg"].append(float(np.mean(Gs)))
         history["worst"].append(float(min(Gs)))
 
-    DataLogger("logs/ttp_random_random_hard/tsp_random_random_history_hard_2.csv").log_data(history)
-    return dists, Gs
+    DataLogger(log_path).log_data(history)
+    return Gs
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_uncorr_10.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
-    n_trials = 100 * 500
-    all_dists, all_Gs = [], []
+    n_trials = 100 * 100
+    run_bests = []
     for seed in range(10):
-        dists, Gs = run(
+        Gs = run(
             cities=cities,
             params=params,
             items=items,
             n_trials=n_trials,
-            seed=seed
+            seed=seed,
+            log_path=f"logs/random_random/ttp_random_random_hard/2/ttp_random_random_history_hard_{seed}.csv",
         )
-        all_dists.append(dists)
-        all_Gs.append(Gs)
+        best_G = float(max(Gs))
+        run_bests.append(best_G)
+
+    run_bests = np.asarray(run_bests, dtype=float)
+    print("--- summary (10 runs, each best) ---")
+    print("best", float(run_bests.max()))
+    print("worst", float(run_bests.min()))
+    print("avg", float(run_bests.mean()))
+    print("std", float(run_bests.std(ddof=1)))
