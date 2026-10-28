@@ -69,7 +69,7 @@ def ttp_sa_sa_solution(
     return route, chosen_items, total_profit - time
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n279_uncorr-similar-weights_01.ttp")
 
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
@@ -80,9 +80,9 @@ if __name__ == "__main__":
         tsp_sim_ann = TravelingSalesmanProblemSimAnn(
             cities=cities,
             seed=seed,
-            T_max=100,
+            T_max=200,
             T_min=1,
-            alpha=0.95,
+            alpha=0.99,
             iters_per_temperature=100
         )
         route, dist = tsp_sim_ann.run()
@@ -93,9 +93,9 @@ if __name__ == "__main__":
             capacity=params['CAPACITY OF KNAPSACK'],
             v_min=params['MIN SPEED'],
             v_max=params['MAX SPEED'],
-            T_max=50,
-            T_min=0.5,
-            alpha=0.95,
+            T_max=200,
+            T_min=1,
+            alpha=0.99,
             iters_per_temperature=100,
             seed=seed,
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         final_Gs.append(G)
 
         data_logger = DataLogger(
-            f"logs/sa_sa/ttp_sa_sa_hard/2/ttp_sa_sa_history_hard_{seed}.csv"
+            f"logs/sa_sa/ttp_sa_sa_easy/3/ttp_sa_sa_history_easy_{seed}.csv"
         )
         data_logger.log_data({
             "best": [G],
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         })
 
     final_Gs = np.asarray(final_Gs, dtype=float)
-    print("--- summary (10 runs) ---")
+    print("Data after 10 runs:")
     print("best", float(final_Gs.max()))
     print("worst", float(final_Gs.min()))
     print("avg", float(final_Gs.mean()))

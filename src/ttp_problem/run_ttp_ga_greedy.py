@@ -13,39 +13,39 @@ def ttp_ga_greedy_solution(
     v_max: float,
 
 ):
-    starting_city_index = list(ga_route).index(0)
-    route = np.array(list(ga_route[starting_city_index:]) + list(ga_route[:starting_city_index]))
+    starting_city_index = list(ga_route).index(0) # wybieramy indeks 0
+    route = np.array(list(ga_route[starting_city_index:]) + list(ga_route[:starting_city_index])) # startujemy od 0
     num_of_cities = len(route)
 
-    distance = city_distances[route, np.roll(route, -1)]
+    distance = city_distances[route, np.roll(route, -1)] # odleglosci od sąsiadów
 
     distance_to_end = np.empty(num_of_cities)
 
-    distance_to_end[route] = np.cumsum(distance[::-1])[::-1]
+    distance_to_end[route] = np.cumsum(distance[::-1])[::-1] # odległość do konca trasy np. [40, 30, 20, 10] -> miasto pierwsze ma do przejechania 40
 
-    nu = (v_max - v_min) / capacity
-    adjusted = []
+    nu = (v_max - v_min) / capacity # wspolczynnik opoznienia (ze wzoru z labow)
+    adjusted = [] # nowe itemy
 
     for profit, weight, city in items:
-        extra_time = distance_to_end[int(city) - 1] * (1 / (v_max - weight * nu) - 1 / v_max)
-        value = profit - extra_time
+        extra_time = distance_to_end[int(city) - 1] * (1 / (v_max - weight * nu) - 1 / v_max) # korekta wartości przedmiotów
+        value = profit - extra_time # nadpisujemy wartości
 
         if value > 0:
-            adjusted.append((value, weight, city, profit))
+            adjusted.append((value, weight, city, profit)) # dodane do plecaka
 
     _, chosen_items, _ = KnapsackProblemGreedy(
         capacity=capacity,
         items=adjusted
     ).greedy()
 
-    city_weight = np.zeros(num_of_cities)
+    city_weight = np.zeros(num_of_cities) # waga w miastach
 
     for _, weight, city, _ in chosen_items:
-        city_weight[int(city) - 1] += weight
+        city_weight[int(city) - 1] += weight # dodajemy wagę do miast
 
-    speed = v_max - np.cumsum(city_weight[route]) * nu
-    time = (distance / speed).sum()
-    total_profit = sum(item[3] for item in chosen_items)
+    speed = v_max - np.cumsum(city_weight[route]) * nu # obliczanie predkosci, suma kumulatywna, kazda wartosc to predkosc na odcinku wychodzacym z miasta
+    time = (distance / speed).sum() # czas ze wzoru droga / predkosc
+    total_profit = sum(item[3] for item in chosen_items) # sumujemy profity
 
     return route, chosen_items, total_profit - time
 
@@ -54,7 +54,7 @@ def ttp_ga_greedy_solution(
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n279_uncorr-similar-weights_01.ttp")
 
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
@@ -69,22 +69,19 @@ if __name__ == "__main__":
             num_of_generations=100,
             k=5,
             mutation_rate=0.1,
-            crossover_rate=0.7,
+            crossover_rate=0.9,
             seed=seed,
         )
 
-        def fitness_fun(route):
-            _, _, G = ttp_ga_greedy_solution(
-                route,
-                tsp.distances,
-                items,
-                capacity=params['CAPACITY OF KNAPSACK'],
-                v_min=params['MIN SPEED'],
-                v_max=params['MAX SPEED'],
-            )
-            return G
+        _, _, G = ttp_ga_greedy_solution(
+            route,
+            tsp.distances,
+            items,
+            capacity=params['CAPACITY OF KNAPSACK'],
+            v_min=params['MIN SPEED'],
+            v_max=params['MAX SPEED'],
+        )
 
-        tsp.fitness_fun = fitness_fun
 
         route, G = tsp.run()
         final_Gs.append(G)
@@ -92,7 +89,7 @@ if __name__ == "__main__":
 
 
         data_logger = DataLogger(
-            f"logs/ga_greedy/ttp_ga_greedy_hard/2/ttp_ga_greedy_history_hard_{seed}.csv"
+            f"logs/ga_greedy/ttp_ga_greedy_easy/3/ttp_ga_greedy_history_easy_{seed}.csv"
         )
         data_logger.log_data(tsp.history)
 

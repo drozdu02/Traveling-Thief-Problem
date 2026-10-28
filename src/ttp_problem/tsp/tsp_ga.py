@@ -15,7 +15,6 @@ class TravelingSalesmanProblem:
             mutation_rate : float,
             crossover_rate : float,
             seed : int,
-            fitness_fun = None
     ):
         self.cities = np.asarray(cities)
         self.population_size = population_size
@@ -23,7 +22,6 @@ class TravelingSalesmanProblem:
         self.k = k
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
-        self.fitness_fun = fitness_fun
         self.rng = np.random.default_rng(seed)
         self.distances = self.compute_distances()
         self.population = self.initialize_population()
@@ -61,11 +59,9 @@ class TravelingSalesmanProblem:
         return distance_for_all_population
 
     def compute_fitness(self):
-        if self.fitness_fun is None:
-            distances_for_generations = self.compute_distances_for_generations()
-            fitness = [1 / d for d in distances_for_generations]
-            return fitness
-        return [self.fitness_fun(n) for n in self.population]
+        distances_for_generations = self.compute_distances_for_generations()
+        fitness = [1 / d for d in distances_for_generations]
+        return fitness
 
     def __log_data(self, fitness):
         fitness = np.asarray(fitness, dtype=float)

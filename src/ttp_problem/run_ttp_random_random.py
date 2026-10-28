@@ -76,7 +76,7 @@ def run(
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n279_uncorr-similar-weights_01.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
@@ -89,13 +89,13 @@ if __name__ == "__main__":
             items=items,
             n_trials=n_trials,
             seed=seed,
-            log_path=f"logs/random_random/ttp_random_random_hard/2/ttp_random_random_history_hard_{seed}.csv",
+            log_path=f"logs/random_random/ttp_random_random_easy/3/ttp_random_random_history_easy_{seed}.csv",
         )
         best_G = float(max(Gs))
         run_bests.append(best_G)
 
     run_bests = np.asarray(run_bests, dtype=float)
-    print("--- summary (10 runs, each best) ---")
+    print("Data after n_trials runs:")
     print("best", float(run_bests.max()))
     print("worst", float(run_bests.min()))
     print("avg", float(run_bests.mean()))

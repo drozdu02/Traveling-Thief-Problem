@@ -85,11 +85,11 @@ def run(
         history["worst"].append(float(min(Gs)))
 
     data_logger = DataLogger(
-        "logs/greedy_greedy/ttp_greedy_greedy_hard/2/tsp_greedy_greedy_history_hard.csv"
+        "logs/greedy_greedy/ttp_greedy_greedy_easy/3/tsp_greedy_greedy_history_easy.csv"
     ).log_data(history)
 
     Gs = np.asarray(Gs, dtype=float)
-    print("--- summary (N starts) ---")
+    print("Data after N runs:")
     print("best", float(Gs.max()))
     print("worst", float(Gs.min()))
     print("avg", float(Gs.mean()))
@@ -97,7 +97,7 @@ def run(
     return Gs
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n2790_bounded-strongly-corr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n279_uncorr-similar-weights_01.ttp")
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
