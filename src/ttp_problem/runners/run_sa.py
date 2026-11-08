@@ -90,20 +90,20 @@ def _run_sa_seed(args):
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader("./data/a280-ttp/a280_n279_uncorr_01.ttp")
+    data_loader = DataLoader("./data/a280-ttp/a280_n1395_uncorr_01.ttp")
 
     cities = data_loader.get_cords()
     params = data_loader.get_knapsack_parameters()
     items = data_loader.get_items()
-    log_path_prefix =f"./logs/sa/tuning/mint/mint01/history"
+    log_path_prefix =f"./logs/sa/medium/2/history"
     runner = SARunner(
         cities=cities,
         items=items,
         params=params,
         T_max=200,
-        T_min=0.1,
+        T_min=1,
         alpha=0.999,
-        iters_per_temperature=250,
+        iters_per_temperature=300,
         log_path=log_path_prefix,
     )
     runner.run()
