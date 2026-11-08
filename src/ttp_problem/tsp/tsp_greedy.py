@@ -5,15 +5,23 @@ from scipy.spatial.distance import squareform, pdist
 from ttp_problem.common.data_loader import DataLoader
 
 class TravelingSalesmanProblemGreedy:
-    def __init__(self, cities : np.ndarray, starting_point : int):
+    def __init__(self,
+             cities : np.ndarray,
+             starting_point : int,
+             distances : np.ndarray | None = None,
+
+         ):
         self.cities = np.asarray(cities)
         self.starting_point = starting_point
-        self.distances = self.compute_distances()
+        if distances is None:
+            self.distances = self.compute_distances()
+        else:
+            self.distances = np.array(distances, copy=True)
+            np.fill_diagonal(self.distances, np.inf)
 
     def compute_distances(self):
-        distances = squareform(pdist(self.cities[..., 1:], metric='euclidean'))
-        distances = np.ceil(distances)
-        distances[distances == 0] = np.inf
+        distances = np.ceil(squareform(pdist(self.cities[..., 1:], metric='euclidean')))
+        np.fill_diagonal(distances, np.inf)
         return distances
 
     def travel(self):

@@ -4,7 +4,7 @@ from typing import List
 from ttp_problem.common.data_loader import DataLoader
 
 class KnapsackProblemRandom:
-    def __init__(self, capacity: float, items: List, seed : int):
+    def __init__(self, capacity: float, items: np.ndarray, seed : int):
         self.items = items
         self.capacity = capacity
         self.rng = np.random.default_rng(seed=seed)

@@ -3,12 +3,17 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
 from ttp_problem.common.data_loader import DataLoader
-
+from ttp_problem.tsp.tsp_greedy import TravelingSalesmanProblemGreedy
+from ttp_problem.packers.pack_item_ga import PackItemGa
 
 class TravelingSalesmanProblem:
     def __init__(
             self,
             cities : np.ndarray,
+            items : np.ndarray,
+            capacity : int,
+            v_min: float,
+            v_max: float,
             population_size : int,
             num_of_generations : int,
             k : int,
@@ -17,6 +22,10 @@ class TravelingSalesmanProblem:
             seed : int,
     ):
         self.cities = np.asarray(cities)
+        self.items = np.asarray(items)
+        self.capacity = capacity
+        self.v_min = v_min
+        self.v_max = v_max
         self.population_size = population_size
         self.num_of_generations = num_of_generations
         self.k = k
@@ -25,6 +34,7 @@ class TravelingSalesmanProblem:
         self.rng = np.random.default_rng(seed)
         self.distances = self.compute_distances()
         self.population = self.initialize_population()
+        self.evaluations = 0
         self.history = {
             "best": [],
             "avg" : [],
@@ -37,37 +47,49 @@ class TravelingSalesmanProblem:
         return np.ceil(distances)
 
     def initialize_population(self):
-        indexes = list(range(len(self.cities)))
-        population = [self.rng.permutation(len(indexes)).tolist() for _ in range(self.population_size)]
+        n = len(self.cities)
+        starting_cities = np.arange(n)
+        self.rng.shuffle(starting_cities)
+        population = []
+        for i in range(self.population_size):
+            start = int(starting_cities[i%n])
+            tsp_greedy = TravelingSalesmanProblemGreedy(
+                cities=self.cities,
+                starting_point=start,
+                distances=self.distances,
+            )
+            _, route = tsp_greedy.travel()
+            individual = list(route)
+
+            if i >= n:
+                a, b = self.rng.choice(n, size=2, replace=False)
+                individual[a], individual[b] = individual[b], individual[a]
+            population.append(individual)
 
         return population
 
-    @staticmethod
-    def _compute_distance_for_single_generation(generation, distances : np.ndarray):
-        distance = 0
-        for i in range(len(generation) - 1):
-            distance += distances[generation[i]][generation[i + 1]]
-
-        distance += distances[generation[-1]][generation[0]]
-        return distance
-
-
-    def compute_distances_for_generations(self):
-        distances_matrix = self.distances
-        population = self.population
-        distance_for_all_population = [self._compute_distance_for_single_generation(p, distances_matrix) for p in population]
-        return distance_for_all_population
-
     def compute_fitness(self):
-        distances_for_generations = self.compute_distances_for_generations()
-        fitness = [1 / d for d in distances_for_generations]
+        fitness = []
+        for p in self.population:
+            _, _, G = PackItemGa(
+                individual=np.array(p),
+                city_distances=self.distances,
+                items=self.items,
+                capacity=self.capacity,
+                v_max=self.v_max,
+                v_min=self.v_min,
+            ).pack()
+            fitness.append(G)
+        self.evaluations += len(self.population)
         return fitness
+
 
     def __log_data(self, fitness):
         fitness = np.asarray(fitness, dtype=float)
         self.history["best"].append(float(fitness.max()))
         self.history["avg"].append(float(fitness.mean()))
         self.history["worst"].append(float(fitness.min()))
+
 
     def _generate_random_indexes(self):
         indexes = self.rng.choice(np.arange(0, self.population_size), size=self.k, replace=False)

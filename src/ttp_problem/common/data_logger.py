@@ -22,4 +22,11 @@ class DataLogger:
             )):
                 write.writerow([g, best, avg, worst])
 
+    def log_summary(self, values):
+        os.makedirs(os.path.dirname(self.data_path) or ".", exist_ok=True)
+        with open(self.data_path, "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["run", "G"])
+            for i, v in enumerate(values):
+                w.writerow([i, float(v)])
 
